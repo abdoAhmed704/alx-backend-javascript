@@ -1,1 +1,1 @@
-Class with JavaScript
+Hello Class with JavaScript
