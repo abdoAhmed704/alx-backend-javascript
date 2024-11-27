@@ -3,7 +3,7 @@ const http = require('http');
 const PORT = 1245;
 const HOST = 'localhost';
 
-const server = http.createServer((req, res) => {
+const app = http.createServer((req, res) => {
   // Set the response header
   res.writeHead(200, { 'Content-Type': 'text/plain' });
 
@@ -12,6 +12,8 @@ const server = http.createServer((req, res) => {
 });
 
 // Start the server on a specified port
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running at http://${HOST}:${PORT}/`);
 });
+
+module.exports = app;
