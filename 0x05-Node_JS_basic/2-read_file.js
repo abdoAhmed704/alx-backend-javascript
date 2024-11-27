@@ -17,7 +17,7 @@ const countStudents = (dataPath) => {
 
     lines.slice(1).forEach((line) => {
       const studentRecord = line.split(',').map((item) => item.trim());
-      if (studentRecord.length >= 4) {
+      if (studentRecord.length === 4) {
         const [name, , , field] = studentRecord;
         if (name || field) {
           totalStudents += 1;
