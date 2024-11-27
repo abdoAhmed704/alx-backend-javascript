@@ -7,7 +7,7 @@ const countStudents = (dataPath) => {
     }
     const data = fs.readFileSync(dataPath, 'utf-8').trim();
 
-    const lines = data.split('\n').filter((line) => line.trim()); // Filter out empty lines
+    const lines = data.split('\n').filter(line => line.trim()); // Filter out empty lines
     if (lines.length <= 1) {
       throw new Error('Cannot load the database'); // No students
     }
@@ -15,28 +15,24 @@ const countStudents = (dataPath) => {
     const students = {};
     let totalStudents = 0;
 
-    lines.slice(1).forEach((line) => { // Skip header line
-      const studentRecord = line.split(',').map((item) => item.trim());
-      if (studentRecord.length < 4) {
-        return; // Skip invalid lines
-      }
+    for (const line of lines.slice(1)) { // Skip header line
+      const studentRecord = line.split(',').map(item => item.trim());
+      if (studentRecord.length < 4) continue; // Skip invalid lines
 
       const [name, , , field] = studentRecord;
-      if (!name || !field) {
-        return; // Skip if name or field is missing
-      }
+      if (!name || !field) continue; // Skip if name or field is missing
 
-      totalStudents += 1;
+      totalStudents++;
       if (!students[field]) {
         students[field] = [];
       }
       students[field].push(name);
-    });
+    }
 
-    console.log('Number of students:', totalStudents);
-    Object.entries(students).forEach(([field, names]) => {
+    console.log('Number of students: ' + totalStudents);
+    for (const [field, names] of Object.entries(students)) {
       console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
-    });
+    }
   } catch (err) {
     throw new Error('Cannot load the database');
   }
