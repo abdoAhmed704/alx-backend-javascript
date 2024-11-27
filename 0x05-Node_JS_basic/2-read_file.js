@@ -7,7 +7,7 @@ const countStudents = (dataPath) => {
     }
     const data = fs.readFileSync(dataPath, 'utf-8').trim();
 
-    const lines = data.split('\n').filter(line => line.trim()); // Filter out empty lines
+    const lines = data.split('\n').filter((line) => line.trim()); // Filter out empty lines
     if (lines.length <= 1) {
       throw new Error('Cannot load the database'); // No students
     }
