@@ -34,9 +34,9 @@ const countStudents = (dataPath) => {
     });
 
     console.log('Number of students: ' + totalStudents);
-    for (const [field, names] of Object.entries(students)) {
+    Object.entries(students).forEach(([field, names]) => {
       console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
-    }
+    });
   } catch (err) {
     throw new Error('Cannot load the database');
   }
