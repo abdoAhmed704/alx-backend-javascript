@@ -1,50 +1,45 @@
 const fs = require('fs');
 
 const countStudents = (dataPath) => {
-  // Check if the file exists and is valid
-  if (!fs.existsSync(dataPath)) {
-    throw new Error('Cannot load the database');
-  }
-  if (!fs.statSync(dataPath).isFile()) {
-    throw new Error('Cannot load the database');
-  }
+    try {
+        if (!fs.existsSync(dataPath)) {
+            throw new Error('Cannot load the database');
+        }
 
-  // Read and process the file
-  const fileLines = fs.readFileSync(dataPath, 'utf-8').toString().trim().split('\n');
+        const data = fs.readFileSync(dataPath, 'utf-8').trim();
 
-  // Extract header and rows
-  const header = fileLines[0].split(',');
-  const rows = fileLines.slice(1).filter((line) => line.trim() !== ''); // Ignore empty lines
+        // Split lines and filter out empty ones
+        const lines = data.split('\n').filter(line => line.trim());
+        if (lines.length <= 1) {
+            throw new Error('Cannot load the database'); // Only the header exists
+        }
 
-  // Ensure the "firstname" field exists dynamically
-  const firstnameIndex = header.indexOf('firstname');
-  const fieldIndex = header.indexOf('field');
+        const students = {};
+        let totalStudents = 0;
 
-  if (firstnameIndex === -1 || fieldIndex === -1) {
-    throw new Error('Invalid file format: Missing required columns');
-  }
+        // Process student data
+        for (const line of lines.slice(1)) { // Skip the header
+            const studentRecord = line.split(',');
+            if (studentRecord.length < 4) continue; // Skip invalid lines
 
-  // Group students by field
-  const studentGroups = {};
-  for (const row of rows) {
-    const studentRecord = row.split(',');
-    const firstname = studentRecord[firstnameIndex];
-    const field = studentRecord[fieldIndex];
+            const [name, , , field] = studentRecord.map(item => item.trim());
+            if (!name || !field) continue; // Skip if name or field is missing
 
-    if (!studentGroups[field]) {
-      studentGroups[field] = [];
+            totalStudents++;
+            if (!students[field]) {
+                students[field] = [];
+            }
+            students[field].push(name);
+        }
+
+        // Log the total number of students
+        console.log(`Number of students: ${totalStudents}`);
+        for (const [field, names] of Object.entries(students)) {
+            console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
+        }
+    } catch (error) {
+        throw new Error('Cannot load the database'); // Ensure consistent error message
     }
-    studentGroups[field].push(firstname);
-  }
-
-  // Output total students
-  const totalStudents = rows.length;
-  console.log(`Number of students: ${totalStudents}`);
-
-  // Output students grouped by field
-  for (const [field, students] of Object.entries(studentGroups)) {
-    console.log(`Number of students in ${field}: ${students.length}. List: ${students.join(', ')}`);
-  }
 };
 
 module.exports = countStudents;
