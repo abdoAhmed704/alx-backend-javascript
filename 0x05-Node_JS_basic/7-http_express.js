@@ -54,16 +54,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/students', (request, response) => {
-  response.write('This is the list of our students\n');
   countStudents(process.argv[2].toString()).then((output) => {
-    const outString = output.slice(0, -1);
-    response.end(outString);
+    response.send(['This is the list of our students', output.slice(0, -1)].join('\n'));
   }).catch(() => {
-    response.statusCode = 404;
-    response.end('Cannot load the database');
+    response.send('This is the list of our students\nCannot load the database');
   });
-
-
 });
 // Start the server
 const PORT = 1245;
