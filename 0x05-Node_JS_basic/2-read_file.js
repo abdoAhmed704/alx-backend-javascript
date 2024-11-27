@@ -31,7 +31,7 @@ const countStudents = (dataPath) => {
 
     console.log('Number of students: ', totalStudents);
     Object.entries(students).forEach(([field, names]) => {
-      console.log('Number of students in' + field + ': ' + names.length + '. List: ' + names.join(', '));
+      console.log(`Number of students in${field}: ${names.length}. List: ${names.join(', ')}`);
     });
   } catch (err) {
     throw new Error('Cannot load the database');
@@ -39,4 +39,3 @@ const countStudents = (dataPath) => {
 };
 
 module.exports = countStudents;
-
