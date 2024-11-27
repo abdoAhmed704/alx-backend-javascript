@@ -27,7 +27,7 @@ const countStudents = (dataPath) => {
         }
     }
 
-    console.log("Number of students: ", count);
+    console.log("Number of students:", count);
     for (const [key, value] of Object.entries(printOutPut)) {
         console.log(`Number of students in ${key}: ${value.length}. List: ${value.join(', ')}`);
     }
