@@ -32,3 +32,5 @@ const countStudents = (dataPath) => {
         console.log(`Number of students in ${key}: ${value.length}. List: ${value.join(', ')}`);
     }
 }
+
+module.exports = countStudents;
