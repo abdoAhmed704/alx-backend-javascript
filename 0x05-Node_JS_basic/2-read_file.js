@@ -33,7 +33,6 @@ const countStudents = (dataPath) => {
       students[field].push(name);
     });
 
-
     console.log('Number of students: ', totalStudents);
     Object.entries(students).forEach(([field, names]) => {
       console.log(`Number of students in${field}: ${names.length}. List: ${names.join(', ')}`);
