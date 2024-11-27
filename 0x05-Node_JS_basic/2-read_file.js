@@ -9,7 +9,7 @@ const countStudents = (dataPath) => {
 
     const lines = data.split('\n').filter((line) => line.trim()); // Filter out empty lines
     if (lines.length <= 1) {
-      throw new Error('Cannot load the database'); // No students
+      throw new Error('Cannot load the database');
     }
 
     const students = {};
@@ -18,12 +18,12 @@ const countStudents = (dataPath) => {
     lines.slice(1).forEach((line) => { // Skip header line
       const studentRecord = line.split(',').map((item) => item.trim());
       if (studentRecord.length < 4) {
-        return; // Skip invalid lines
+        return;
       }
 
       const [name, , , field] = studentRecord;
       if (!name || !field) {
-        return; // Skip if name or field is missing
+        return;
       }
 
       totalStudents += 1;
