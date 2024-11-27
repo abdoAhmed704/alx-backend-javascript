@@ -7,15 +7,15 @@ const countStudents = (dataPath) => {
     }
     const data = fs.readFileSync(dataPath, 'utf-8').trim();
 
-    const lines = data.split('\n').filter((line) => line.trim()).slice(1); // Filter out empty lines
-    if (lines.length < 1) {
+    const lines = data.split('\n').filter((line) => line.trim()); // Filter out empty lines
+    if (lines.length <= 1) {
       throw new Error('Cannot load the database'); // No students
     }
 
     const students = {};
     let totalStudents = 0;
 
-    lines.forEach((line) => {
+    lines.slice(1).forEach((line) => {
       const studentRecord = line.split(',').map((item) => item.trim());
       if (studentRecord.length >= 4) {
         const [name, , , field] = studentRecord;
