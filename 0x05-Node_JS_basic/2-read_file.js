@@ -15,19 +15,24 @@ const countStudents = (dataPath) => {
     const students = {};
     let totalStudents = 0;
 
-    lines.slice(1).forEach((line) => {
+    lines.slice(1).forEach((line) => { // Skip header line
       const studentRecord = line.split(',').map((item) => item.trim());
-      if (studentRecord.length === 4) {
-        const [name, , , field] = studentRecord;
-        if (name || field) {
-          totalStudents += 1;
-          if (!students[field]) {
-            students[field] = [];
-          }
-          students[field].push(name);
-        } // Skip if name or field is missin
-      } // Skip invalid lines
+      if (studentRecord.length < 4) {
+        return; // Skip invalid lines
+      }
+
+      const [name, , , field] = studentRecord;
+      if (!name || !field) {
+        return; // Skip if name or field is missing
+      }
+
+      totalStudents += 1;
+      if (!students[field]) {
+        students[field] = [];
+      }
+      students[field].push(name);
     });
+
 
     console.log('Number of students: ', totalStudents);
     Object.entries(students).forEach(([field, names]) => {
