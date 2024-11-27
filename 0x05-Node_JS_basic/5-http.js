@@ -3,116 +3,73 @@ const fs = require('fs');
 
 const PORT = 1245;
 const HOST = 'localhost';
-const app = http.createServer();
-const DB_FILE = process.argv.length > 2 ? process.argv[2] : '';
 
-/**
- * Counts the students in a CSV data file.
- * @param {String} dataPath The path to the CSV data file.
- * @author Bezaleel Olakunori <https://github.com/B3zaleel>
- */
 const countStudents = (dataPath) => new Promise((resolve, reject) => {
-  if (!dataPath) {
-    reject(new Error('Cannot load the database'));
-  }
-  if (dataPath) {
-    fs.readFile(dataPath, (err, data) => {
-      if (err) {
+  fs.readFile(dataPath, 'utf-8', (error, data) => {
+    if (error) {
+      reject(new Error('Cannot load the database'));
+    }
+    if (data) {
+      const lines = data.trim().split('\n').filter((line) => line.trim());
+      if (lines.length <= 1) {
         reject(new Error('Cannot load the database'));
       }
-      if (data) {
-        const reportParts = [];
-        const fileLines = data.toString('utf-8').trim().split('\n');
-        const studentGroups = {};
-        const dbFieldNames = fileLines[0].split(',');
-        const studentPropNames = dbFieldNames.slice(
-          0,
-          dbFieldNames.length - 1,
-        );
+      let output = '';
+      try {
+        const students = {};
+        let totalStudents = 0;
 
-        for (const line of fileLines.slice(1)) {
-          const studentRecord = line.split(',');
-          const studentPropValues = studentRecord.slice(
-            0,
-            studentRecord.length - 1,
-          );
-          const field = studentRecord[studentRecord.length - 1];
-          if (!Object.keys(studentGroups).includes(field)) {
-            studentGroups[field] = [];
+        lines.slice(1).forEach((line) => { // Skip header line
+          const studentRecord = line.split(',').map((item) => item.trim());
+          if (studentRecord.length < 4) {
+            return;
           }
-          const studentEntries = studentPropNames.map((propName, idx) => [
-            propName,
-            studentPropValues[idx],
-          ]);
-          studentGroups[field].push(Object.fromEntries(studentEntries));
-        }
 
-        const totalStudents = Object.values(studentGroups).reduce(
-          (pre, cur) => (pre || []).length + cur.length,
-        );
-        reportParts.push(`Number of students: ${totalStudents}`);
-        for (const [field, group] of Object.entries(studentGroups)) {
-          reportParts.push([
-            `Number of students in ${field}: ${group.length}.`,
-            'List:',
-            group.map((student) => student.firstname).join(', '),
-          ].join(' '));
-        }
-        resolve(reportParts.join('\n'));
+          const [name, , , field] = studentRecord;
+          if (!name || !field) {
+            return;
+          }
+
+          totalStudents += 1;
+          if (!students[field]) {
+            students[field] = [];
+          }
+          students[field].push(name);
+        });
+
+        output += `Number of students: ${totalStudents}\n`;
+        Object.entries(students).forEach(([field, names]) => {
+          output += `Number of students in ${field}: ${names.length}. List: ${names.join(', ')}\n`;
+        });
+      } catch (err) {
+        reject(new Error('Cannot load the database'));
       }
+      resolve(output);
+    }
+  });
+});
+
+const app = http.createServer((request, response) => {
+  response.statusCode = 200;
+  response.setHeader('Content-Type', 'text/plain');
+  if (request.url === '/') {
+    response.write('Hello Holberton School!');
+    response.end();
+  } else if (request.url === '/students') {
+    response.write('This is the list of our students\n');
+    countStudents(process.argv[2].toString()).then((output) => {
+      const outString = output.slice(0, -1);
+      response.end(outString);
+    }).catch(() => {
+      response.statusCode = 404;
+      response.end('Cannot load the database');
     });
   }
 });
 
-const SERVER_ROUTE_HANDLERS = [
-  {
-    route: '/',
-    handler(_, res) {
-      const responseText = 'Hello Holberton School!';
-
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Length', responseText.length);
-      res.statusCode = 200;
-      res.write(Buffer.from(responseText));
-    },
-  },
-  {
-    route: '/students',
-    handler(_, res) {
-      const responseParts = ['This is the list of our students'];
-
-      countStudents(DB_FILE)
-        .then((report) => {
-          responseParts.push(report);
-          const responseText = responseParts.join('\n');
-          res.setHeader('Content-Type', 'text/plain');
-          res.setHeader('Content-Length', responseText.length);
-          res.statusCode = 200;
-          res.write(Buffer.from(responseText));
-        })
-        .catch((err) => {
-          responseParts.push(err instanceof Error ? err.message : err.toString());
-          const responseText = responseParts.join('\n');
-          res.setHeader('Content-Type', 'text/plain');
-          res.setHeader('Content-Length', responseText.length);
-          res.statusCode = 200;
-          res.write(Buffer.from(responseText));
-        });
-    },
-  },
-];
-
-app.on('request', (req, res) => {
-  for (const routeHandler of SERVER_ROUTE_HANDLERS) {
-    if (routeHandler.route === req.url) {
-      routeHandler.handler(req, res);
-      break;
-    }
-  }
-});
-
-app.listen(PORT, HOST, () => {
-  process.stdout.write(`Server listening at -> http://${HOST}:${PORT}\n`);
+// Start the server on a specified port
+app.listen(PORT, () => {
+  console.log(`Server running at http://${HOST}:${PORT}/`);
 });
 
 module.exports = app;
